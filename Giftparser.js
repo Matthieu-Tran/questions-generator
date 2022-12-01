@@ -22,7 +22,7 @@ GiftParser.prototype.parse = function(data){
 }
 
 GiftParser.prototype.tokenize = function(data){
-    var separator = /(::|{|}|~|=|#|\r\n)/;
+    var separator = /(::|{|}|~|=|#|\r\n|\/{2})/;
     data = data.split(separator);
     separator = /(\r\n|\n)/;
 	data = data.filter((val, idx) => !val.match(separator)); 
@@ -80,6 +80,9 @@ GiftParser.prototype.question = function(input){
     if(this.check("::", input)){
         this.expect("::",input);
         var args = this.body(input);
+        if(input.length > 0){
+            this.question(input);
+        }
         return true;
     }else{
         return false;
@@ -87,14 +90,18 @@ GiftParser.prototype.question = function(input){
 }
 
 GiftParser.prototype.body = function(input){
-    // On cherche ici l'enonce dans l'input et on la met dans la variable enonce
+    var commentaire = ""
+    // On cherche ici l'enonce dans l'input et on la met dans la variable 
     var enonce = this.enonce(input);
+    var deuxiemePartieEnonce = ""
     // On cherche ici la question dans l'input et on la met dans la variable question
     var question = this.uneQuestion(input);
     var proposition = this.propositions(input)
-    console.log(input)
+    if(input[0]!='//'||input[0]!='::'){
+        deuxiemePartieEnonce = this.next(input);
+        console.log("tsetset")
+    }
 }
-
 
 // On regarde le nom de l'enonce
 GiftParser.prototype.enonce = function(input){
@@ -112,17 +119,53 @@ GiftParser.prototype.uneQuestion = function(input){
     return curS;
 }
 
-// GiftParser.prototype.propositions = function(input){
-//     this.expect("{",input)
-//     var proposition = []
-//     var curS = this.next(input);
-//     // Tant qu'on arrive pas à la fin de la réponse, on boucle
-//     while(curS != '}'){
-//         if(curS=='~'){
-//             curS = this.next(input);
-//         }
-//     }
-//     return curS;
-// }
+GiftParser.prototype.propositions = function(input){
+    this.expect("{",input)
+    var proposition = []
+    var feedbackProposition = []
+    var réponse = []
+    var feedbackReponse = []
+    var cur = this.next(input);
+    // Tant qu'on arrive pas à la fin de la réponse, on boucle
+    console.log9
+    while(cur!='}'){
+        //Si la proposition contient un feedback alors on met la proposition dans un tableau, de même que pour le feedback
+        if(cur=='~'&&input[1]=="#"){
+            cur = this.next(input);
+            proposition.push(cur)
+            cur = this.next(input);
+            cur = this.next(input);
+            feedbackProposition.push(cur)
+        }
+        //De meme pour une reponse
+        else if(cur=='='&&input[1]=="#"){
+            cur = this.next(input);
+
+            //On push la réponse et la proposition afin de permettre à l'utilisateur de visualiser les propositions mais aussi on va pouvoir vérifier les réponses
+            réponse.push(cur)
+            proposition.push(cur)
+
+            cur = this.next(input);
+            cur = this.next(input);
+            feedbackReponse.push(cur)
+        }
+        // Si la reponse ne contient aucune feedback alors, on n'en met pas
+        else if(cur=='~'){
+            cur = this.next(input);
+            proposition.push(cur)
+        }else if(cur=='='){
+            cur = this.next(input);
+            réponse.push(cur)
+            proposition.push(cur)
+        }
+        var cur = this.next(input); 
+    }  
+    //return curS;
+}
+
+GiftParser.prototype.errMsg = function(msg, input){
+	this.errorCount++;
+	console.log("Parsing Error ! on "+input+" -- msg : "+msg);
+}
 
 module.exports = GiftParser
