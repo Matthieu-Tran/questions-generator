@@ -1,0 +1,11 @@
+::Question1::Quelle est la couleur du cheval blanc d'Henry IV ? {
+~Noir
+~Jaune
+=Blanc
+~Rouge
+~Bleu
+~Blouge
+}
+::Question2::Que pensez vous de la choucroute ? {}
+::Question3::J'ai utilisé la commande # {1:SA:=Push~=Pull~=Clone~=Commit} dans mon terminal.
+::Question4::La température d'ébulition de l'eau est de 100C° {TRUE}
