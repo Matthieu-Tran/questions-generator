@@ -1,0 +1,21 @@
+{
+  "name": "gl02_a22_groupe-groupe-project",
+  "version": "1.0.0",
+  "description": "Command utility program that will allow managers and teachers to submit their test and obtain the results of their students",
+  "main": "caporalCli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.utt.fr/tranmatt/gl02_a22_groupe-groupe-project.git"
+  },
+  "author": "Groupe-Groupe",
+  "license": "ISC",
+  "dependencies": {
+    "@caporal/core": "^2.0.2",
+    "colors": "^1.4.0",
+    "vega": "^5.22.1",
+    "vega-lite": "^5.6.0"
+  }
+}
