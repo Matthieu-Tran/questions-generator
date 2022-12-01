@@ -1,5 +1,6 @@
 const fs = require('fs')
 const colors = require('colors');
+const GiftParser = require('./GiftParser.js')
 
 const vg = require('vega');
 const vegalite = require('vega-lite');
@@ -21,7 +22,7 @@ cli
 				return logger.warn(err);
 			}
 	  
-			var analyzer = new VpfParser(options.showTokenize, options.showSymbols);
+			var analyzer = new GiftParser(options.showTokenize, options.showSymbols);
 			analyzer.parse(data);
 			
 			if(analyzer.errorCount === 0){
@@ -33,6 +34,6 @@ cli
 			logger.debug(analyzer.parsedPOI);
 
 		});
-			
+	
 	})
     cli.run(process.argv.slice(2));
