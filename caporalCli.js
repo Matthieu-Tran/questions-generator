@@ -36,4 +36,54 @@ cli
 		});
 	
 	})
+
+	// search
+	.command('search', 'Free text search on gift\'s questions')
+	.argument('<file>', 'The Vpf file to search')
+	.argument('<needle>', 'The text to look for in gift\'s questions')
+	.action(({args, options, logger}) => {
+		fs.readFile(args.file, 'utf8', function (err,data) {
+		if (err) {
+			return logger.warn(err);
+		}
+	
+		analyzer = new GiftParser();
+		analyzer.parse(data);
+		
+		if(analyzer.errorCount === 0){
+			var n = new RegExp(args.needle)
+			var filtered = analyzer.parsedQuestion.filter( p => p.question.match(n, 'i'));
+			logger.info("%s", JSON.stringify(filtered, null, 2));
+			
+		}else{
+			logger.info("The .gift file contains error".red);
+		}
+		
+		});
+	})
+	
+	.command('search', 'Free text search on gift\'s questions')
+	.argument('<file>', 'The Vpf file to search')
+	.argument('<needle>', 'The text to look for in gift\'s questions')
+	.action(({args, options, logger}) => {
+		fs.readFile(args.file, 'utf8', function (err,data) {
+		if (err) {
+			return logger.warn(err);
+		}
+	
+		analyzer = new GiftParser();
+		analyzer.parse(data);
+		
+		if(analyzer.errorCount === 0){
+			var n = new RegExp(args.needle)
+			var filtered = analyzer.parsedQuestion.filter( p => p.question.match(n, 'i'));
+			logger.info("%s", JSON.stringify(filtered, null, 2));
+			
+		}else{
+			logger.info("The .gift file contains error".red);
+		}
+		
+		});
+	})
+	
     cli.run(process.argv.slice(2));
