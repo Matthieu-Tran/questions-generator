@@ -31,7 +31,7 @@ cli
 				logger.info("The .gift file contains error".red);
 			}
 			
-			logger.debug(analyzer.parsedPOI);
+			logger.debug(analyzer.parsedQuestion);
 
 		});
 	

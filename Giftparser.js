@@ -4,7 +4,7 @@ let Question = require("./Question");
 
 var GiftParser = function(sTokenize, sParsedSymb){
     this.parsedQuestion = [];
-    this.symb = ["::", "{", "}", "~", "=", "#"];
+    this.symb = ["::", "{", "}", "~", "=", "#", "//"];
     //showTokenize ici est un caractere pour permettre de voir le fichier
 	this.showTokenize = sTokenize;
 	// pareil pour showParsedSymbol
@@ -18,13 +18,14 @@ GiftParser.prototype.parse = function(data){
 	if(this.showTokenize){
 		console.log(tData);
 	}
+    //console.log(tData)
     this.listQuestion(tData)
 }
 
 GiftParser.prototype.tokenize = function(data){
-    var separator = /(::|{|}|~|=|#|\r\n|\/{2})/;
+    var separator = /(::|{|}|~|=|#|->|\r|\n|\/{2})/;
     data = data.split(separator);
-    separator = /(\r\n|\n)/;
+    separator = /(\r|\n)/;
 	data = data.filter((val, idx) => !val.match(separator)); 
     //On enlève tous les espaces blanc qui sont en trop dans l'array
     data = data.filter(function(str) {
@@ -76,10 +77,16 @@ GiftParser.prototype.expect = function(s, input){
 
 GiftParser.prototype.question = function(input){
     var title = /\((.+?)\)/;
+    //S'il y a des commentaires en début de fichier, alors on les ignores
+    while(this.check("//", input)){
+        this.next(input)
+        this.next(input)
+    }
     // On regarde si le fichier commence par '::'
     if(this.check("::", input)){
         this.expect("::",input);
-        var args = this.body(input);
+        var q = this.body(input);
+        this.parsedQuestion.push(q)
         if(input.length > 0){
             this.question(input);
         }
@@ -90,17 +97,18 @@ GiftParser.prototype.question = function(input){
 }
 
 GiftParser.prototype.body = function(input){
-    var commentaire = ""
     // On cherche ici l'enonce dans l'input et on la met dans la variable 
     var enonce = this.enonce(input);
-    var deuxiemePartieEnonce = ""
+    var deuxiemePartieQuestion = ""
     // On cherche ici la question dans l'input et on la met dans la variable question
     var question = this.uneQuestion(input);
-    var proposition = this.propositions(input)
-    if(input[0]!='//'||input[0]!='::'){
-        deuxiemePartieEnonce = this.next(input);
-        console.log("tsetset")
+    var propositions = this.propositions(input)
+    if(input[0]!="::"){
+        deuxiemePartieQuestion = input[0];
+        this.next(input);
     }
+    var question = new Question(enonce,question, deuxiemePartieQuestion, propositions.proposition,propositions.reponse,propositions.feedback,propositions.vraiOuFaux,propositions.match)
+    return question;
 }
 
 // On regarde le nom de l'enonce
@@ -121,33 +129,49 @@ GiftParser.prototype.uneQuestion = function(input){
 
 GiftParser.prototype.propositions = function(input){
     this.expect("{",input)
-    var proposition = []
-    var feedbackProposition = []
-    var réponse = []
-    var feedbackReponse = []
+    var proposition = [];
+    // On crée une map afin de pouvoir associer les réponses et prépositions à leur feedback
+    var feedback = new Map();
+    var match = new Map();
+    var reponse = [];
+    var vraiOuFaux = "";
     var cur = this.next(input);
     // Tant qu'on arrive pas à la fin de la réponse, on boucle
-    console.log9
     while(cur!='}'){
+        if(cur=='='&&input[1]=="->"){
+            cur = this.next(input);
+            let reponseTemp = cur;
+            cur = this.next(input);
+            cur = this.next(input);
+            match.set(reponseTemp,cur)
+        }
         //Si la proposition contient un feedback alors on met la proposition dans un tableau, de même que pour le feedback
-        if(cur=='~'&&input[1]=="#"){
+        else if(cur=='~'&&input[1]=="#"){
             cur = this.next(input);
-            proposition.push(cur)
+            proposition.push(cur);
+            //On crée une variable temporaire pour la proposition afin de la sauvegarder pour plus tard, la mettre dans la map feedback
+            let tempProposition = cur;
             cur = this.next(input);
             cur = this.next(input);
-            feedbackProposition.push(cur)
+            feedback.set(tempProposition,cur)
         }
         //De meme pour une reponse
         else if(cur=='='&&input[1]=="#"){
             cur = this.next(input);
-
             //On push la réponse et la proposition afin de permettre à l'utilisateur de visualiser les propositions mais aussi on va pouvoir vérifier les réponses
-            réponse.push(cur)
-            proposition.push(cur)
-
+            reponse.push(cur);
+            proposition.push(cur);
+            //Pareil que pour la proposition, on crée une variable temporaire
+            let tempReponse = cur;
             cur = this.next(input);
             cur = this.next(input);
-            feedbackReponse.push(cur)
+            feedback.set(tempReponse,cur);
+        }
+        else if((cur=='~')&&input[0]== "="){
+            cur = this.next(input);
+            cur = this.next(input);
+            proposition.push(cur);
+            reponse.push(cur);     
         }
         // Si la reponse ne contient aucune feedback alors, on n'en met pas
         else if(cur=='~'){
@@ -155,12 +179,31 @@ GiftParser.prototype.propositions = function(input){
             proposition.push(cur)
         }else if(cur=='='){
             cur = this.next(input);
-            réponse.push(cur)
+            reponse.push(cur)
             proposition.push(cur)
+        }
+        //Je met un includes car si je met 'TRUE #test' comme commentaire l'espace après le TRUE est compté comme un caractère ce qui ne permet pas de faire une égalités.
+        else if((cur.includes('T')||cur.includes('TRUE'))&& input[0]=="#"){
+            vraiOuFaux = "TRUE";
+            cur = this.next(input);
+            cur = this.next(input);
+            feedback.set(vraiOuFaux,cur)
+        }
+        else if((cur.includes('F')||cur.includes('FALSE'))&& input[0]=="#"){
+            vraiOuFaux = "FALSE" ;
+            cur = this.next(input);
+            cur = this.next(input);
+            feedback.set(vraiOuFaux,cur)
+        }
+        else if(cur=='T'||cur=='TRUE'){
+            vraiOuFaux = "TRUE";
+        }
+        else if(cur=='F'||cur=='FALSE'){
+            vraiOuFaux = "FALSE" 
         }
         var cur = this.next(input); 
     }  
-    //return curS;
+    return {proposition: proposition, reponse: reponse, feedback: feedback, vraiOuFaux: vraiOuFaux, match: match}
 }
 
 GiftParser.prototype.errMsg = function(msg, input){
