@@ -61,7 +61,6 @@ cli
 		
 		});
 	})
-	
 	.command('search', 'Free text search on gift\'s questions')
 	.argument('<file>', 'The Vpf file to search')
 	.argument('<needle>', 'The text to look for in gift\'s questions')
