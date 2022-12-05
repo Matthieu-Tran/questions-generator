@@ -377,6 +377,32 @@ cli
 	
 	})
 
+	.command('createVCard', 'Check if <file> is a valid gift file')
+	.argument('<nom>', 'Nom de l\'enseignant')
+	.argument('<prenom>', 'Prénom de l\'enseignant')
+	.argument('<mail>', 'Mail de l\'enseignant')
+	.argument('<telephone>', 'Téléphone de l\'enseignant')
+	.argument('<adresse>', 'Adresse de l\'enseignant')
+	.argument('<ville>', 'Ville où l\'enseignant habite')
+	.argument('<codepostal>', 'Code postal de la ville où l\'enseignant habite')
+	.argument('<etablissement>', 'Etablissement de l\'enseignant')
+	.argument('<sexe>', 'Genre de l\'enseignant')
+	.action(async ({args, options, logger}) => {
+		let vCard = vCardsJS();
+
+		vCard.firstName = args.prenom;
+		vCard.lastName = args.nom;
+		vCard.email = args.mail;
+		vCard.cellPhone = args.telephone;
+		vCard.homeAddress.street = args.adresse; //pb car adresse en trois parties --> faire concanetation dans une variable
+		vCard.homeAddress.city = args.ville;
+		vCard.homeAddress.postalCode = args.codepostal;
+		vCard.organization = args.etablissement;
+		vCard.gender = args.sexe;
+		  
+		// Save contact to VCF file
+		vCard.saveToFile(args.prenom+`.vcf`);
+	})
 
 
 	
