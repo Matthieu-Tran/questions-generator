@@ -32,7 +32,6 @@ cli
 			}
 
 		});
-	
 	})
 	.command('readme', 'affiche le readme')
 	.action(() => {
