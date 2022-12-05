@@ -18,7 +18,6 @@ GiftParser.prototype.parse = function(data){
 	if(this.showTokenize){
 		console.log(tData);
 	}
-    //console.log(tData)
     this.listQuestion(tData)
 }
 
