@@ -8,6 +8,8 @@ var Question = function(enonce, question,deuxiemePartieQuestion, propositions, r
     //this.commentaire= commentaire;
     this.vraiOuFaux = vraiOuFaux;
     this.match = match;
+
+    // En fonction des critères, le systeme affecte le type de question
     if(vraiOuFaux)
         this.typeQuestion = "qcm";
     else if (propositions.length>0)

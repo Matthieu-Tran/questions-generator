@@ -3,30 +3,17 @@ const colors = require('colors');
 const GiftParser = require('./GiftParser.js')
 const cli = require("@caporal/core").default;
 const Question = require('./Question.js');
-const VCardParser = require('./VCardParser');
-const vCard = require('./VCard.js')
 const readline = require("readline");
-const ChartJSImage = require("chart.js-image");
-
-const open = require("open");
-const regexText = /[a-zA-Z ]+/gm;
-const regexDigit = /[0-9]+/gm;
-const regexDate = /^(0[1-9]|[12][0-9]|3[01])[- /.] (0[1-9]|1[012])[- /.]/gm;
-const regexAdresse = /[0-9 ]+ [a-zA-Z ]+ [0-9]+ [a-zA-Z ]+/gm;
-
 var vCardsJS = require('vcards-js');
-
-const vg = require('vega');
-const vegalite = require('vega-lite');
 
 cli
     .version('gift-parser-cli')
-    .version('0.07')
+    .version('0.01')
     // check gift
-    .command('check', 'Check if <file> is a valid gift file')
-	.argument('<file>', 'The file to check with gift parser')
-	.option('-s, --showSymbols', 'log the analyzed symbol at each step', { validator : cli.BOOLEAN, default: false })
-	.option('-t, --showTokenize', 'log the tokenization results', { validator: cli.BOOLEAN, default: false })
+    .command('check', 'Vérifie que c\'est un bon fichier .gift')
+	.argument('<file>', 'Le nom du fichier .VCard à lire')
+	.option('-s, --showSymbols', 'Log les symboles analysés à chaque étape', { validator : cli.BOOLEAN, default: false })
+	.option('-t, --showTokenize', 'Log le résultat de la tokenisation', { validator: cli.BOOLEAN, default: false })
 	.action(({args, options, logger}) => {
 		
 		fs.readFile(args.file, 'utf8', function (err,data) {
@@ -39,18 +26,26 @@ cli
 			
 			if(analyzer.errorCount === 0){
 				console.log(analyzer.parsedQuestion)
-				logger.info("The .gift file is a valid gift file".green);
+				logger.info("Le fichier .gift est un fichier valide".green);
 			}else{
-				logger.info("The .gift file contains error".red);
+				logger.info("Le fichier .gift contient des erreurs".red);
 			}
 
 		});
 	
 	})
+	.command('readme', 'affiche le readme')
+	.action(() => {
+		fs.readFile("./README.md", "utf-8", function (err, data) {
+			if (err) { return console.log("erreur dans la lecture du readme !"); }
+			console.log(data);
+		});
+	})
 
 	// search
-	.command('createTest', 'Recherche de questions selon les critères de l\'utilisateur')
-	.argument('<file>', 'The Vpf file to search')
+	.command('creerTest', 'Creer un test selon les questions que veut l\'utilisateur')
+	.argument('<file>', 'Le fichier pour crée le test')
+	.argument('<name>', 'Nom du test')
 	.action(({args, options, logger}) => {
 		fs.readFile(args.file, 'utf8', async function (err,data) {
 		if (err) {
@@ -76,24 +71,30 @@ cli
 		console.log("Veuillez choisir vos questions, tapez 'quit' pour arrêter (Veillez mettre l'index de la question dans le terminal)")
 		let laQuestion = "";
 		let questionsExamen = []
+
+		//Tant que l'utilisateur n'a pas mis 'quit' on continue de faire le fichier
 		while(laQuestion.toLowerCase()!="quit"){
 			laQuestion = await readInput();
 			if(isNaN(Number(laQuestion))&&laQuestion.toLowerCase()!="quit"){
 				console.log("Votre index n'est pas un entier".red)
 			}
+			//Si l'index que l'utilisateur met est inférieur ou supérieur au nombre de question, on affiche une erreur
 			else if(Number(laQuestion)<0||Number(laQuestion)>analyzer.parsedQuestion.length){
 				console.log("Votre index est soit inférieur soit supérieur au nombre total de question dans le fichier .gift".red);
 			}
 			else if(laQuestion.toLowerCase()!="quit")
 					questionsExamen.push(Number(laQuestion));
 		}
-		fs.copyFile(args.file, 'fichierExamen.gift', (err) => {
+		
+		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionnés
+
+		fs.copyFile(args.file, args.name, (err) => {
 			if (err) throw err;
 		});
 		
 		setTimeout(ecrireFichier, 4000)
 		function ecrireFichier(){
-			fs.readFile('fichierExamen.gift', 'utf8', function(err, data)
+			fs.readFile(args.name, 'utf8', function(err, data)
 			{
 				if (err)
 				{
@@ -132,11 +133,11 @@ cli
 						.join('\n');
 				}
 				
-				fs.readFile('fichierExamen.gift', 'utf8', (err, data) => {
+				fs.readFile(args.name, 'utf8', (err, data) => {
 					if (err) throw err;
 				
-					// remove the first line and the 5th and 6th lines in the file
-					fs.writeFile('fichierExamen.gift', removeLines(data, lines), 'utf8', function(err) {
+					// On enlève toutes les lignes qui ne correspondent pas aux questions choisis
+					fs.writeFile(args.name, removeLines(data, lines), 'utf8', function(err) {
 						if (err) throw err;
 						console.log("Votre questionnaire vient d'être créé.");
 					});
@@ -147,10 +148,10 @@ cli
 	})
 	
 
-	// search
-	.command('search', 'Recherche de questions selon les critères de l\'utilisateur')
-	.argument('<file>', 'The Vpf file to search')
-	.argument('<needle>', 'The text to look for in gift\'s questions')
+	// rechercher
+	.command('rechercher', 'Recherche de questions selon les un mot que met l\'utilisateur')
+	.argument('<file>', 'Le nom du fichier .VCard à lire')
+	.argument('<needle>', 'Le ou les mots recherchés')
 	.action(({args, options, logger}) => {
 		fs.readFile(args.file, 'utf8', function (err,data) {
 		if (err) {
@@ -175,8 +176,8 @@ cli
 		});
 	})
 
-	.command('checkExam', 'Free text search on gift\'s questions')
-	.argument('<file>', 'The Vpf file to search')
+	.command('checkExam', 'Vérifier si il y a bien plus de 15 questions, moins de 20 questions et pas de redondance')
+	.argument('<file>', 'Nom du fichier')
 	.action(({args, options, logger}) => {
 		fs.readFile(args.file, 'utf8', async function (err,data) {
 		if (err) {
@@ -247,6 +248,8 @@ cli
 			console.log(analyzer.parsedQuestion.length)
 			logger.info("Votre fichier contient trop de questions, veuillez en supprimer quelques uns, Veuillez mettre l'indice des questions. De 0 à ".red + (analyzer.parsedQuestion.length-1).red )
 			let tempQuestionEnTrop =[]
+
+			// Tant que l'utilisateur n'a pas réduit suffisament le nombre de questions, on continue de lui demander d'enlever des questions
 			while(analyzer.parsedQuestion.length>20){
 				console.log(questions);
 				let data = await readInput();
@@ -254,7 +257,8 @@ cli
 				analyzer.parsedQuestion.splice(data,1)
 				questions.splice(data,1)
 			}
-			console.log(tempQuestionEnTrop)
+
+			//Ici, on va faire pareil que lorsqu'on veut créer un fichier sauf qu'on va supprimer les lignes dont les questions choisis sont en trop
 			fs.copyFile(args.file, 'fichierExamen.gift', (err) => {
 				if (err) throw err;
 			});
@@ -263,10 +267,6 @@ cli
 			function ecrireFichier(){
 				fs.readFile('fichierExamen.gift', 'utf8', function(err, data)
 				{
-					if (err)
-					{
-						// check and handle err
-					}
 					let regexEmptyLine = /\n/
 					let tempData = data.split(regexEmptyLine)
 					let indexDebut =0;
@@ -319,8 +319,8 @@ cli
 		});
 	})
 
-	.command('exam', 'Check if <file> is a valid gift file')
-	.argument('<file>', 'The file to check with gift parser')
+	.command('exam', 'Permet de faire passer un examen à un étudiant')
+	.argument('<file>', 'Nom du fichier')
 	.action(({args, options, logger}) => {
 		
 		fs.readFile(args.file, 'utf8', async function (err,data) {
@@ -347,6 +347,8 @@ cli
 			for(let i =0; i<numberQuestion;i++){
 				lesQuestions.push(i)
 			}
+
+			// Tant que l'utilisateur n'a pas fini l'examen, on continue
 			while(numberQuestion!=0){
 				var randomNumQuestion = Math.floor(Math.random() * numberQuestion);		
 				let q = lesQuestions[randomNumQuestion]
@@ -355,9 +357,9 @@ cli
 					console.log(analyzer.parsedQuestion[q].propositions)
 				}
 				else if(analyzer.parsedQuestion[q].typeQuestion==="correspondance"){
-					console.log(analyzer.parsedQuestion[q].match)
+					numberQuestion--;
+					break;
 				}
-
 				let data = await readInput();
 				if(data===analyzer.parsedQuestion[q].reponses[0]){
 					lesQuestions.splice(q,1);
@@ -377,7 +379,7 @@ cli
 	
 	})
 
-	.command('createVCard', 'Check if <file> is a valid gift file')
+	.command('createVCard')
 	.argument('<nom>', 'Nom de l\'enseignant')
 	.argument('<prenom>', 'Prénom de l\'enseignant')
 	.argument('<mail>', 'Mail de l\'enseignant')
@@ -404,8 +406,5 @@ cli
 		vCard.saveToFile(args.prenom+`.vcf`);
 	})
 
-
-	
-	
 	
 cli.run(process.argv.slice(2));

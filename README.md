@@ -1,92 +1,219 @@
-# Gl02 A22 Groupe Groupe Project
+# README - Questionaires Syrem - Projet GL02
+### https://git.utt.fr/tranmatt/gl02_a22_groupe-groupe-project 
+
+# :question: Description :question:
+Utilitaire permettant de gérer des examens.
+
+# Grammaire ABNF :
+
+## Format GIFT:
+    Examen = Question =
+    // Commentaire = Titre = Énoncé = Format =
+    Réponses =
+    Proposition =
+    PropositionNumé = rique
+    TexteRéponse =
+    Feedback =
+    FeedbackGeneral = Text =
+    1*Question
+    Titre WSP Énoncé WSP ‘{’ Réponses ‘}’CRLF| Titre WSP Énoncé WSP ‘{’ Réponses FeedbackGeneral‘}’CRLF
+    Text CRLF
+    ‘::’Text
+    ‘::’Text | Format WSP Text
+    ‘[html]’ | ‘[moodle]’ | ‘[plain]’ | ‘[markdown]’
+    1*Proposition CRLF| 1*Proposition WSP Feedback CRLF| 1*PropositionNumérique CRLF| ‘#’1*PropositionNumérique WSP Feedback CRLF
+    ‘T’ | ‘F’ |’TRUE’|’FALSE’| ‘=’TexteRéponse | ‘~’TextRéponse|
+    ‘=’Text WSP ’->’Text | WSP
+    ‘=’Nombre‘:’Nombre CRLF| Nombre’..’nombre CRLF|
+    Text |
+    ‘%’Nombre’%’Text | ‘%’Signe Pourcent’%’Text |
+    ‘#’Text
+    ‘####’ Text 1*(WSP / VCHAR)
+
+## Format vCard :
+    VCARD = "BEGIN:VCARD" CRLF "VERSION:4.0" CRLF 1*contentline
+            "END:VCARD" CRLF
+            ; Un objet vCard DOIT inclure la VERSION
+            ; VERSION DOIT se situer immédiatement après BEGIN:VCARD.
+
+    contentline = [group "."] name *(";" param) ":" value CRLF
+
+    group = 1*(ALPHA | DIGIT | "-")
+
+    name = "SOURCE" | "KIND" | "FN" | "N"| "NICKNAME"| "PHOTO" | BDAY"
+            | "ANNIVERSARY" | "GENDER" | "ADR" | "TEL" | "EMAIL" | "IMPP"
+            | "LANG" | "TZ" | "GEO" | "TITLE" | "ROLE" | "LOGO" | "ORG" |
+            "MEMBER" | "RELATED" | "CATEGORIES" | "NOTE" | "PRODID" |
+            "REV" | "SOUND" | "UID" | "CLIENTPIDMAP" | "URL" | "KEY" |
+            "FBURL" | "CALADRURI" | "CALURI" | "XML" | iana-token |
+            x-name
+            ; L'analyse syntaxique de “param” and “value” est basée sur
+            le "nom" tel que défini dans les sections ABNF ci-dessous
+            ; Group et name sont sensibles à la classe.
+
+    iana-token = 1*(ALPHA | DIGIT | "-")
+
+    x-name = "x-" 1*(ALPHA | DIGIT | "-")
+            ; Les noms qui commences par"x-" ou "X-" sont réservés pour
+            une utilisations expérimentale et ne sont pas destiné à être
+            publié
+
+    param = language-param | value-param | pref-param | pid-param | type-param | geo-parameter | tz-parameter | sort-as-param
+            | calscale-param | any-param
+            ;Les paramètres autorisées dépendent du nom de la propriété
+    param-value = *SAFE-CHAR | DQUOTE *QSAFE-CHAR DQUOTE
+
+    any-param = (iana-token | x-name) "=" param-value *("," param-value)
+
+    QSAFE-CHAR = WSP | "!" | %x23-7E | NON-ASCII
+        ; Tous les caractères sauf CTLs, DQUOTE
+
+    SAFE-CHAR = WSP | "!" | %x23-39 | %x3C-7E | NON-ASCII
+        ; Tous les caractères sauf CTLs, DQUOTE, ";", ":"
+
+    VALUE-CHAR = WSP | VCHAR | NON-ASCII
+    
+    NON-ASCII = UTF8-2 | UTF8-3 | UTF8-4
+
+# Installation 
+$ npm install
+
+# Utilisation 
+    $ node caporalCli.js <commande>
+Commandes :
 
 
+    check <nomFichier>
+        arguments : 
+            file : Le nom du fichier .gift à lire.
+        options :
+            -s : Log les symboles analysés à chaque étape
+            -t : Log le résultat de la tokenisation
+        actions :
+            Vérifie que le fichier donnée comporte des questions écrite selon la grammaire ABNF spécifiée et sont donc bien utilisable pour le reste des commande.
+        retour :
+            void
+        erreurs :
+            Si un fichier comporte des questions qui ne correspondent pas au format GIFT la console indique que le fichier comprends des erreurs.
+        exemple d'utilisation :
+            node caporalCli.js check examentest.gift
 
-## Getting started
+    rechercher <file> <needle>
+        arguments : 
+            file : Le nom du fichier .gift à lire.
+            needle : Le ou les mots recherchés
+        options :
+            Aucunes
+        actions :
+            Affiche toute question de <banqueDeDonnesGift> dont un champ contient <recherche>. 
+        retour :
+            void
+        erreurs :
+            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
+        exemple d'utilisation :
+            node caporalCli.js rechercher examentest.gift Chose
+        notes :
+            Cette fonction répond à la SPEC1 du CDCF.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+    creerTest <file>
+        arguments : 
+            file : Le nom du fichier .gift à lire.
+            nom : nom donné à l'examen 
+        options :
+            aucunes.
+        alias :
+            CE
+        actions :
+            Crée un fichier portant le nom de l'examen et contenant les questions converties au format GIFT.
+        retour :
+            void
+        erreurs :
+            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
+            node caporalCli.js creerTest examentest.gift exam.gift
+        notes :
+            Cette fonction répond à la SPEC1 du CDCF.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+    checkExam <file>
+        arguments : 
+            file : Le nom du fichier .gift à lire.
+            nom : nom donné à l'examen 
+        options :
+            aucunes.
+        alias :
+            CE
+        actions :
+            Regarde si le fichier d'examen est convenable selon les critères de la spécification du CDCF
+        retour :
+            void
+        erreurs :
+        Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
+            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
+            Si le nombre de questions données est >20, le logiciel propose à l'utilisateur de retirer des questions.
+            Si le nombre de questions données est <15, le logiciel supprime le fichier
+            Si une question est donnée en double, le logiciel propose à l'utilisateur supprime le duplicat
+        
+            node caporalCli.js creerTest examentest.gift exam.gift
+        notes :
+            Cette fonction répond à la SPEC1 du CDCF.
 
-## Add your files
+    createVCard <nom> <prenom> <mail> <telephone> <adresse> <ville> <codepostal> <age> <etablissement> <sexe>
+        arguments :
+            nom : nom de l'enseignant
+            prenom : prénom de l'enseignant
+            mail : email de l'enseignant
+            telephone : numéro de téléphone de l'enseignant
+            adresse : adresse de l'enseignant (Attention : écrire l'adresse sans espaces)
+            ville : ville où habite l'enseignant
+            codepostal : code postal de la ville où habite l'enseignant
+            age : age de l'enseignant
+            etablissement : etablissement d'enseignement de l'enseignant
+            sexe : genre de l'enseignant
+        options : 
+            aucunes.
+        actions :
+            Permet de générer un fichier au format VCard avec les informations relatives à l'enseignant
+        retour :
+            un fichier .vcard
+        erreurs :
+            si un des arguments manque, le logiciel l'indique.
+        exemple d'utilisation :
+               $ node caporalCli.js genererVCard Matthieu Tran matthieu.tran@utt.fr 0102030405 42ruejeandupont Troyes 10000 UTT Homme      
+        notes :
+            cette commande répond à la SPEC5 du cahier des charges
+    
+    exam <file>
+        arguments :
+            file : le nom du fichier au format gift dont on veut passer le test.
+        options :
+            aucunes.
+        actions :
+            Fait passer le test, puis génère une note en fonction du nombre de bonnes réponses. Les questions ouvertes ne comptent pas dans la note.
+        retour :
+            void
+        erreurs :
+            Si <nomFichier> n'est pas parsable, renvoie un message d'erreur.
+        exemple d'utilisation :
+            $ node caporalCli.js exam examentest.gift
+        notes :
+            Cette fonction répond à la SPEC3 du CDCF.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
-```
-cd existing_repo
-git remote add origin https://git.utt.fr/tranmatt/gl02_a22_groupe-groupe-project.git
-git branch -M main
-git push -uf origin main
-```
+## 0.1
+Parser de base. Les données ont du être réarrangé car l'ABNF correspondait en partie aux données.
 
-## Integrate with your tools
+Implémentation des questions de type QCM, vrai/faux, ouvertes, numérique et mot manquant.
 
-- [ ] [Set up project integrations](https://git.utt.fr/tranmatt/gl02_a22_groupe-groupe-project/-/settings/integrations)
+Implémentation des cartes d'informations sur les enseignants (VCard).
 
-## Collaborate with your team
+Possibilité de passer un examen.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Possibilit2 de crée un examen selon un fichier .gift
 
-## Test and Deploy
+La possibilité de voir les stats des fichiers en barChart a été omise. Le fichier profile.html n'est mis que en statique. Une amélioration est à faire.
 
-Use the built-in continuous integration in GitLab.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Liste des contributeurs 
+### Matthieu TRAN
+### Charles OSSOLA
+### Nathan Boutevilain
+### Tan Dung Pham
