@@ -4,7 +4,7 @@
   "description": "Command utility program that will allow managers and teachers to submit their test and obtain the results of their students",
   "main": "caporalCli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,8 @@
     "vcards-js": "^2.10.0",
     "vega": "^5.22.1",
     "vega-lite": "^5.6.0"
+  },
+  "devDependencies": {
+    "jasmine": "^4.5.0"
   }
 }

@@ -210,4 +210,4 @@ GiftParser.prototype.errMsg = function(msg, input){
 	console.log("Parsing Error ! on "+input+" -- msg : "+msg);
 }
 
-module.exports = GiftParser
+module.exports = GiftParser;
