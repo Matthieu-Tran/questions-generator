@@ -5,6 +5,7 @@ const cli = require("@caporal/core").default;
 const Question = require('./Question.js');
 const readline = require("readline");
 var vCardsJS = require('vcards-js');
+const Console = require("console");
 
 cli
     .version('gift-parser-cli')
@@ -72,8 +73,9 @@ cli
 		let questionsExamen = []
 
 		//Tant que l'utilisateur n'a pas mis 'quit' on continue de faire le fichier
-		while(laQuestion.toLowerCase()!="quit"){
+		while(laQuestion.toLowerCase()!="quit" || questionsExamen.length==0){
 			laQuestion = await readInput();
+			if(laQuestion==="quit" && questionsExamen.length==0) Console.log("Le test doit contenir au moins une question");
 			if(isNaN(Number(laQuestion))&&laQuestion.toLowerCase()!="quit"){
 				console.log("Votre index n'est pas un entier".red)
 			}
@@ -85,15 +87,15 @@ cli
 					questionsExamen.push(Number(laQuestion));
 		}
 		
-		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionnés
-
-		fs.copyFile(args.file, args.name, (err) => {
+		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionné
+		let name = args.name + ".gift";
+		fs.copyFile(args.file, name, (err) => {
 			if (err) throw err;
 		});
 		
 		setTimeout(ecrireFichier, 4000)
 		function ecrireFichier(){
-			fs.readFile(args.name, 'utf8', function(err, data)
+			fs.readFile(name, 'utf8', function(err, data)
 			{
 				if (err)
 				{
@@ -132,11 +134,11 @@ cli
 						.join('\n');
 				}
 				
-				fs.readFile(args.name, 'utf8', (err, data) => {
+				fs.readFile(name, 'utf8', (err, data) => {
 					if (err) throw err;
 				
 					// On enlève toutes les lignes qui ne correspondent pas aux questions choisis
-					fs.writeFile(args.name, removeLines(data, lines), 'utf8', function(err) {
+					fs.writeFile(name, removeLines(data, lines), 'utf8', function(err) {
 						if (err) throw err;
 						console.log("Votre questionnaire vient d'être créé.");
 					});
