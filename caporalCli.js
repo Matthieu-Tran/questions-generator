@@ -97,63 +97,6 @@ cli
 			if (err) throw err;
 			console.log("Votre questionnaire vient d'être créé.");
 		});
-		/*
-		fs.copyFile(args.file, name, (err) => {
-			if (err) throw err;
-		});
-		
-		setTimeout(ecrireFichier, 4000)
-		function ecrireFichier(){
-			fs.readFile(name, 'utf8', function(err, data)
-			{
-				if (err)
-				{
-					// check and handle err
-				}
-				let regexEmptyLine = /\n/
-				let tempData = data.split(regexEmptyLine)
-				let indexDebut =0;
-				let indexFin =0;
-				let tableauIndexDebut =[1];
-				let tableauIndexFin =[]
-				for(let i =0; i<tempData.length;i++){
-					if(tempData[i]===""){
-						indexDebut= i+2;
-						indexFin =i;
-						tableauIndexDebut.push(indexDebut);
-						tableauIndexFin.push(indexFin)
-					}
-				}
-				tableauIndexDebut.pop();
-				let lines =[];
-				// .join() takes that array and re-concatenates it into a string
-				for(let i =0; i<analyzer.parsedQuestion.length;i++){
-					if(!questionsExamen.includes(i+1)){
-						let nbLignesASupprimer = tableauIndexFin[i]-tableauIndexDebut[i];
-						nbLignesASupprimer++;
-						for(let j =0; j<nbLignesASupprimer;j++){
-							lines.push((tableauIndexDebut[i]+j)-1)
-						}
-					}
-				}
-				const removeLines = (data, lines = []) => {
-					return data
-						.split('\n')
-						.filter((val, idx) => lines.indexOf(idx) === -1)
-						.join('\n');
-				}
-				
-				fs.readFile(name, 'utf8', (err, data) => {
-					if (err) throw err;
-				
-					// On enlève toutes les lignes qui ne correspondent pas aux questions choisis
-					fs.writeFile(name, removeLines(data, lines), 'utf8', function(err) {
-						if (err) throw err;
-						console.log("Votre questionnaire vient d'être créé.");
-					});
-				})
-			});
-		}*/
 		});
 	})
 	
