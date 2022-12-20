@@ -5,6 +5,7 @@ const cli = require("@caporal/core").default;
 const Question = require('./Question.js');
 const readline = require("readline");
 var vCardsJS = require('vcards-js');
+const Console = require("console");
 
 cli
     .version('gift-parser-cli')
@@ -64,85 +65,38 @@ cli
 		}
 
 		analyzer = new GiftParser();
-		analyzer.parse(data);
+		let parsedQues=analyzer.getAllQuestion(data);
 
-		console.log(analyzer.parsedQuestion)
 		console.log("Veuillez choisir vos questions, tapez 'quit' pour arrêter (Veillez mettre l'index de la question dans le terminal)")
 		let laQuestion = "";
 		let questionsExamen = []
 
 		//Tant que l'utilisateur n'a pas mis 'quit' on continue de faire le fichier
-		while(laQuestion.toLowerCase()!="quit"){
+		while(laQuestion.toLowerCase()!="quit" || questionsExamen.length==0){
 			laQuestion = await readInput();
+			if(laQuestion==="quit" && questionsExamen.length==0) Console.log("Le test doit contenir au moins une question");
 			if(isNaN(Number(laQuestion))&&laQuestion.toLowerCase()!="quit"){
 				console.log("Votre index n'est pas un entier".red)
 			}
 			//Si l'index que l'utilisateur met est inférieur ou supérieur au nombre de question, on affiche une erreur
-			else if(Number(laQuestion)<0||Number(laQuestion)>analyzer.parsedQuestion.length){
+			else if(Number(laQuestion)<0||Number(laQuestion)>parsedQues.length){
 				console.log("Votre index est soit inférieur soit supérieur au nombre total de question dans le fichier .gift".red);
 			}
 			else if(laQuestion.toLowerCase()!="quit")
 					questionsExamen.push(Number(laQuestion));
 		}
-		
-		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionnés
 
-		fs.copyFile(args.file, args.name, (err) => {
+		// ici on enlève toutes les redondances
+		questionsExamen=questionsExamen.filter((item,index) => questionsExamen.indexOf(item) === index);
+		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionné
+		let name = args.name + ".gift"; // on ajoute l'extention
+		let dataToWrite =[] ;
+		questionsExamen.forEach(ele => dataToWrite.push(parsedQues[ele])); // on recupère les questions a partir les indexs de l'utilisateur
+		dataToWrite=dataToWrite.join('');//. on transforme array en string pour ecrire le fichier avec.
+		fs.writeFile(name, dataToWrite, 'utf8', function(err) {
 			if (err) throw err;
+			console.log("Votre questionnaire vient d'être créé.");
 		});
-		
-		setTimeout(ecrireFichier, 4000)
-		function ecrireFichier(){
-			fs.readFile(args.name, 'utf8', function(err, data)
-			{
-				if (err)
-				{
-					// check and handle err
-				}
-				let regexEmptyLine = /\n/
-				let tempData = data.split(regexEmptyLine)
-				let indexDebut =0;
-				let indexFin =0;
-				let tableauIndexDebut =[1];
-				let tableauIndexFin =[]
-				for(let i =0; i<tempData.length;i++){
-					if(tempData[i]===""){
-						indexDebut= i+2;
-						indexFin =i;
-						tableauIndexDebut.push(indexDebut);
-						tableauIndexFin.push(indexFin)
-					}
-				}
-				tableauIndexDebut.pop();
-				let lines =[];
-				// .join() takes that array and re-concatenates it into a string
-				for(let i =0; i<analyzer.parsedQuestion.length;i++){
-					if(!questionsExamen.includes(i+1)){
-						let nbLignesASupprimer = tableauIndexFin[i]-tableauIndexDebut[i];
-						nbLignesASupprimer++;
-						for(let j =0; j<nbLignesASupprimer;j++){
-							lines.push((tableauIndexDebut[i]+j)-1)
-						}
-					}
-				}
-				const removeLines = (data, lines = []) => {
-					return data
-						.split('\n')
-						.filter((val, idx) => lines.indexOf(idx) === -1)
-						.join('\n');
-				}
-				
-				fs.readFile(args.name, 'utf8', (err, data) => {
-					if (err) throw err;
-				
-					// On enlève toutes les lignes qui ne correspondent pas aux questions choisis
-					fs.writeFile(args.name, removeLines(data, lines), 'utf8', function(err) {
-						if (err) throw err;
-						console.log("Votre questionnaire vient d'être créé.");
-					});
-				})
-			});
-		}
 		});
 	})
 	
@@ -314,7 +268,7 @@ cli
 		}
 		else{
 			logger.info("Votre fichier d'examen est bon".green)
-		}		
+		}
 		});
 	})
 

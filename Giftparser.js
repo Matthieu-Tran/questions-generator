@@ -11,7 +11,23 @@ var GiftParser = function(sTokenize, sParsedSymb){
 	this.showParsedSymbols = sParsedSymb;
 	this.errorCount = 0;
 }
-
+GiftParser.prototype.getAllQuestion = function(data){
+    let separator = /(\:\:)/;
+    data = data.split(separator);
+    let result = [];
+    let returnData = [];
+    let j=0;
+    for(let i = 1; i < data.length; i=i+2) {
+        result[j]=data[i].concat(data[i+1]);
+        j++;
+    }
+    j=0;
+    for(let i = 0; i < result.length; i=i+2) {
+        returnData[j]=result[i].concat(result[i+1]);
+        j++;
+    }
+    return returnData;
+}
 // parse : analyze data by calling the first non terminal rule of the grammar
 GiftParser.prototype.parse = function(data){
 	var tData = this.tokenize(data);
