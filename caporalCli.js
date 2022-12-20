@@ -65,9 +65,8 @@ cli
 		}
 
 		analyzer = new GiftParser();
-		analyzer.parse(data);
+		let parsedQues=analyzer.getAllQuestion(data);
 
-		console.log(analyzer.parsedQuestion)
 		console.log("Veuillez choisir vos questions, tapez 'quit' pour arrêter (Veillez mettre l'index de la question dans le terminal)")
 		let laQuestion = "";
 		let questionsExamen = []
@@ -80,15 +79,25 @@ cli
 				console.log("Votre index n'est pas un entier".red)
 			}
 			//Si l'index que l'utilisateur met est inférieur ou supérieur au nombre de question, on affiche une erreur
-			else if(Number(laQuestion)<0||Number(laQuestion)>analyzer.parsedQuestion.length){
+			else if(Number(laQuestion)<0||Number(laQuestion)>parsedQues.length){
 				console.log("Votre index est soit inférieur soit supérieur au nombre total de question dans le fichier .gift".red);
 			}
 			else if(laQuestion.toLowerCase()!="quit")
 					questionsExamen.push(Number(laQuestion));
 		}
-		
+
+		// ici on enlève toutes les redondances
+		questionsExamen=questionsExamen.filter((item,index) => questionsExamen.indexOf(item) === index);
 		// Ici, on va copier le fichier initial puis on va supprimer les questions qui ne sont pas séléctionné
-		let name = args.name + ".gift";
+		let name = args.name + ".gift"; // on ajoute l'extention
+		let dataToWrite =[] ;
+		questionsExamen.forEach(ele => dataToWrite.push(parsedQues[ele])); // on recupère les questions a partir les indexs de l'utilisateur
+		dataToWrite=dataToWrite.join('');//. on transforme array en string pour ecrire le fichier avec.
+		fs.writeFile(name, dataToWrite, 'utf8', function(err) {
+			if (err) throw err;
+			console.log("Votre questionnaire vient d'être créé.");
+		});
+		/*
 		fs.copyFile(args.file, name, (err) => {
 			if (err) throw err;
 		});
@@ -144,7 +153,7 @@ cli
 					});
 				})
 			});
-		}
+		}*/
 		});
 	})
 	
@@ -316,7 +325,7 @@ cli
 		}
 		else{
 			logger.info("Votre fichier d'examen est bon".green)
-		}		
+		}
 		});
 	})
 
