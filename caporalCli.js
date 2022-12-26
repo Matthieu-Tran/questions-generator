@@ -51,6 +51,11 @@ cli
 		if (err) {
 			return logger.warn(err);
 		}
+		if(args.name.includes(" ")||args.name.includes(".gift")){
+			console.log("nom incorrect");
+			return logger.warn(err);
+		}
+
 
 		function readInput() {
 			const interface = readline.createInterface({
@@ -179,6 +184,7 @@ cli
 
 		console.log(args.file)
 		if(analyzer.parsedQuestion.length<15){
+
 			logger.info("Il n'y a pas assez de questions, le fichier va donc être supprimé. Veuillez refaire un examen".red)
 			fs.unlink(args.file, err => {
 				if(err){
