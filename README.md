@@ -211,9 +211,32 @@ Possibilit2 de crée un examen selon un fichier .gift
 
 La possibilité de voir les stats des fichiers en barChart a été omise. Le fichier profile.html n'est mis que en statique. Une amélioration est à faire.
 
+## 0.2
 
-# Liste des contributeurs 
+Corrections de bugs (créations d'examen au nom vide, ajout automatique de l'extension .gift)
+
+Possibilité de créer un histogramme Vegalite
+
+Amélioration des commandes creerTest, CheckExam, les améliorations ne sont pas terminées
+
+# Liste des contributeurs
+
 ### Matthieu TRAN
+
 ### Charles OSSOLA
+
 ### Nathan Boutevilain
+
 ### Tan Dung Pham
+
+### Gwenaëlle Riou
+
+### Antonin Dominguez
+
+### Charles Miliotis
+
+*Nom de l'équipe de développement* : Group  
+*Membres* : Matthieu TRAN,Charles OSSOLA, Nathan Boutevilain, Tan Dung Pham  
+*Nom de l'équipe de refactoring*: Ort  
+*Membres* : Gwenaëlle RIOU, Antonin DOMIGUEZ,Charles MILIOTIS  
+*Licence* : MIT
