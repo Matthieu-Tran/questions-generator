@@ -1,75 +1,75 @@
-# README - Questionaires Syrem - Projet GL02
+# README - Syrem Questionaires - Projet GL02
 ### https://git.utt.fr/tranmatt/gl02_a22_groupe-groupe-project 
 
 # :question: Description :question:
-Utilitaire permettant de gérer des examens.
+Utility to manage exams.
 
-# Grammaire ABNF :
+# Grammar ABNF :
 
-## Format GIFT:
-    Examen = Question =
-    // Commentaire = Titre = Énoncé = Format =
-    Réponses =
-    Proposition =
-    PropositionNumé = rique
-    TexteRéponse =
+## GIFT format:
+    Exam = Question =
+    // Comment = Title = Statement = Format =
+    Answers =
+    Proposal =
+    ProposalNumber = rique
+    AnswerText =
     Feedback =
     FeedbackGeneral = Text =
     1*Question
-    Titre WSP Énoncé WSP ‘{’ Réponses ‘}’CRLF| Titre WSP Énoncé WSP ‘{’ Réponses FeedbackGeneral‘}’CRLF
+    Title WSP Statement WSP '{' Answers '}'CRLF| Title WSP Statement WSP '{' Answers FeedbackGeneral'}'CRLF
     Text CRLF
-    ‘::’Text
-    ‘::’Text | Format WSP Text
-    ‘[html]’ | ‘[moodle]’ | ‘[plain]’ | ‘[markdown]’
-    1*Proposition CRLF| 1*Proposition WSP Feedback CRLF| 1*PropositionNumérique CRLF| ‘#’1*PropositionNumérique WSP Feedback CRLF
-    ‘T’ | ‘F’ |’TRUE’|’FALSE’| ‘=’TexteRéponse | ‘~’TextRéponse|
-    ‘=’Text WSP ’->’Text | WSP
-    ‘=’Nombre‘:’Nombre CRLF| Nombre’..’nombre CRLF|
+    '::'Text
+    '::'Text | WSP Format Text
+    '[html]' | '[moodle]' | '[plain]' | '[markdown]'
+    1*Proposition CRLF| 1*Proposition WSP Feedback CRLF| 1*PropositionNumeric CRLF| '#'1*PropositionNumeric WSP Feedback CRLF
+    T' | 'F' | 'TRUE'| 'FALSE'| '='TextResponse | '~'TextResponse|
+    ='Text WSP'->'Text | WSP
+    ='Number':'Number CRLF| Number'...'Number CRLF|
     Text |
-    ‘%’Nombre’%’Text | ‘%’Signe Pourcent’%’Text |
-    ‘#’Text
-    ‘####’ Text 1*(WSP / VCHAR)
+    Number'...'Number'...'Text | '%'Percent Sign'%'Text |
+    #'Text
+    ####' Text 1*(WSP / VCHAR)
 
-## Format vCard :
+## vCard format:
     VCARD = "BEGIN:VCARD" CRLF "VERSION:4.0" CRLF 1*contentline
             "END:VCARD" CRLF
-            ; Un objet vCard DOIT inclure la VERSION
-            ; VERSION DOIT se situer immédiatement après BEGIN:VCARD.
+            A vCard object MUST include the VERSION
+            VERSION MUST be immediately after BEGIN:VCARD.
 
     contentline = [group "."] name *(";" param) ":" value CRLF
 
     group = 1*(ALPHA | DIGIT | "-")
 
     name = "SOURCE" | "KIND" | "FN" | "N"| "NICKNAME"| "PHOTO" | BDAY"
-            | "ANNIVERSARY" | "GENDER" | "ADR" | "TEL" | "EMAIL" | "IMPP"
-            | "LANG" | "TZ" | "GEO" | "TITLE" | "ROLE" | "LOGO" | "ORG" |
-            "MEMBER" | "RELATED" | "CATEGORIES" | "NOTE" | "PRODID" |
+            | "BIRTHDAY" | "GENDER" | "ADR" | "TEL" | "EMAIL" | "IMPP" | "LANG" | "TZ" | "TZ" | "TZ" | "TZ" | "TZ
+            | "TZ" | "GEO" | "TITLE" | "ROLE" | "LOGO" | "ORG" |
+            | "MEMBER" | "RELATED" | "CATEGORIES" | "NOTE" | "PRODID" | "REV" | "SOUND" | "GA" |
             "REV" | "SOUND" | "UID" | "CLIENTPIDMAP" | "URL" | "KEY" |
             "FBURL" | "CALADRURI" | "CALURI" | "XML" | iana-token |
             x-name
-            ; L'analyse syntaxique de “param” and “value” est basée sur
-            le "nom" tel que défini dans les sections ABNF ci-dessous
-            ; Group et name sont sensibles à la classe.
+            The parsing of "param" and "value" is based on
+            name" as defined in the ABNF sections below
+            ; Group and name are class sensitive.
 
     iana-token = 1*(ALPHA | DIGIT | "-")
 
     x-name = "x-" 1*(ALPHA | DIGIT | "-")
-            ; Les noms qui commences par"x-" ou "X-" sont réservés pour
-            une utilisations expérimentale et ne sont pas destiné à être
-            publié
+            ; Names that begin with "x-" or "X-" are reserved for experimental
+            experimental use and are not intended to be
+            published
 
     param = language-param | value-param | pref-param | pid-param | type-param | geo-parameter | tz-parameter | sort-as-param
             | calscale-param | any-param
-            ;Les paramètres autorisées dépendent du nom de la propriété
+            The allowed parameters depend on the property name
     param-value = *SAFE-CHAR | DQUOTE *QSAFE-CHAR DQUOTE
 
     any-param = (iana-token | x-name) "=" param-value *("," param-value)
 
     QSAFE-CHAR = WSP | "!" | %x23-7E | NON-ASCII
-        ; Tous les caractères sauf CTLs, DQUOTE
+        ; All characters except CTLs, DQUOTE
 
     SAFE-CHAR = WSP | "!" | %x23-39 | %x3C-7E | NON-ASCII
-        ; Tous les caractères sauf CTLs, DQUOTE, ";", ":"
+        ; All characters except CTLs, DQUOTE, ";", ":"
 
     VALUE-CHAR = WSP | VCHAR | NON-ASCII
     
@@ -78,148 +78,148 @@ Utilitaire permettant de gérer des examens.
 # Installation 
 $ npm install
 
-# Utilisation 
-    $ node caporalCli.js <commande>
-Commandes :
+# Usage 
+    $ node caporalCli.js <command>
+Commands:
 
 
-    check <nomFichier>
-        arguments : 
-            file : Le nom du fichier .gift à lire.
-        options :
-            -s : Log les symboles analysés à chaque étape
-            -t : Log le résultat de la tokenisation
+    check <filename>
+        arguments: 
+            file: The name of the .gift file to read.
+        options:
+            -s: Log the symbols parsed at each step.
+            -t : Log the result of the tokenization
         actions :
-            Vérifie que le fichier donnée comporte des questions écrite selon la grammaire ABNF spécifiée et sont donc bien utilisable pour le reste des commande.
-        retour :
+            Checks that the given file has questions written according to the specified ABNF grammar and are therefore usable for the rest of the commands.
+        return :
             void
-        erreurs :
-            Si un fichier comporte des questions qui ne correspondent pas au format GIFT la console indique que le fichier comprends des erreurs.
-        exemple d'utilisation :
+        errors :
+            If a file contains questions that do not match the GIFT format the console indicates that the file contains errors.
+        example of use :
             node caporalCli.js check examentest.gift
 
     rechercher <file> <needle>
-        arguments : 
-            file : Le nom du fichier .gift à lire.
-            needle : Le ou les mots recherchés
-        options :
-            Aucunes
-        actions :
-            Affiche toute question de <banqueDeDonnesGift> dont un champ contient <recherche>. 
-        retour :
+        arguments: 
+            file: The name of the .gift file to read.
+            needle: The word or words being searched for.
+        options:
+            None
+        actions:
+            Displays any <GiftBank> question that has a field containing <search>. 
+        return:
             void
-        erreurs :
-            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
-        exemple d'utilisation :
-            node caporalCli.js rechercher examentest.gift Chose
-        notes :
-            Cette fonction répond à la SPEC1 du CDCF.
+        errors:
+            If <GiftDataBank> is not parsable, returns an error message.
+        example of use:
+            node caporalCli.js search examentest.gift Chose
+        notes:
+            This function meets the SPEC1 of the CDCF.
 
-    creerTest <file>
-        arguments : 
-            file : Le nom du fichier .gift à lire.
-            nom : nom donné à l'examen 
-        options :
-            aucunes.
+    createTest <file>
+        arguments: 
+            file: The name of the .gift file to be read.
+            name: name given to the test 
+        options:
+            none.
         alias :
             CE
-        actions :
-            Crée un fichier portant le nom de l'examen et contenant les questions converties au format GIFT.
-        retour :
+        actions:
+            Creates a file with the name of the exam and containing the questions converted to GIFT format.
+        return:
             void
-        erreurs :
-            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
+        errors:
+            If <GiftBank> is not parsable, returns an error message.
             node caporalCli.js creerTest examentest.gift exam.gift
-        notes :
-            Cette fonction répond à la SPEC1 du CDCF.
+        notes:
+            This function meets the SPEC1 of the CDCF.
 
     checkExam <file>
-        arguments : 
-            file : Le nom du fichier .gift à lire.
-            nom : nom donné à l'examen 
-        options :
-            aucunes.
+        arguments: 
+            file: The name of the .gift file to be read.
+            name: name given to the exam. 
+        options:
+            none.
         alias :
             CE
-        actions :
-            Regarde si le fichier d'examen est convenable selon les critères de la spécification du CDCF
-        retour :
+        actions:
+            Looks at whether the review file is suitable according to the criteria in the CDCF specification.
+        return:
             void
-        erreurs :
-        Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
-            Si <banqueDeDonnesGift> n'est pas parsable, renvoie un message d'erreur.
-            Si le nombre de questions données est >20, le logiciel propose à l'utilisateur de retirer des questions.
-            Si le nombre de questions données est <15, le logiciel supprime le fichier
-            Si une question est donnée en double, le logiciel propose à l'utilisateur supprime le duplicat
+        errors:
+        If <GiftBank> is not parsable, returns an error message.
+            If <GiftBank> is not parsable, returns an error message.
+            If the number of given questions is >20, the software offers the user to remove questions.
+            If the number of questions given is <15, the software deletes the file
+            If a question is given in duplicate, the software proposes to the user to delete the duplicate
         
             node caporalCli.js creerTest examentest.gift exam.gift
-        notes :
-            Cette fonction répond à la SPEC1 du CDCF.
+        notes:
+            This function meets the SPEC1 of the CDCF.
 
-    createVCard <nom> <prenom> <mail> <telephone> <adresse> <ville> <codepostal> <age> <etablissement> <sexe>
-        arguments :
-            nom : nom de l'enseignant
-            prenom : prénom de l'enseignant
-            mail : email de l'enseignant
-            telephone : numéro de téléphone de l'enseignant
-            adresse : adresse de l'enseignant (Attention : écrire l'adresse sans espaces)
-            ville : ville où habite l'enseignant
-            codepostal : code postal de la ville où habite l'enseignant
-            age : age de l'enseignant
-            etablissement : etablissement d'enseignement de l'enseignant
-            sexe : genre de l'enseignant
+    createVCard <name> <firstname> <mail> <telephone> <address> <city> <postcode> <age> <institution> <sex>
+        arguments:
+            lastname: name of the teacher
+            first name : first name of the teacher
+            mail : email of the teacher
+            telephone : teacher's phone number
+            address : teacher's address (Warning : write the address without spaces)
+            city : city where the teacher lives
+            zip code : zip code of the city where the teacher lives
+            age : age of the teacher
+            school : teacher's school
+            sex : gender of the teacher
         options : 
-            aucunes.
+            none.
         actions :
-            Permet de générer un fichier au format VCard avec les informations relatives à l'enseignant
-        retour :
-            un fichier .vcard
-        erreurs :
-            si un des arguments manque, le logiciel l'indique.
-        exemple d'utilisation :
-               $ node caporalCli.js genererVCard Matthieu Tran matthieu.tran@utt.fr 0102030405 42ruejeandupont Troyes 10000 UTT Homme      
-        notes :
-            cette commande répond à la SPEC5 du cahier des charges
+            Generates a file in VCard format with the teacher's information
+        return:
+            .vcard file
+        errors:
+            if one of the arguments is missing, the software indicates it.
+        example of use:
+               $ node caporalCli.js genererVCard Matthieu Tran matthieu.tran@utt.fr 0102030405 42ruejeandupont Troyes 10000 UTT Man      
+        NOTES:
+            this command meets SPEC5 of the specification
     
     exam <file>
-        arguments :
-            file : le nom du fichier au format gift dont on veut passer le test.
-        options :
-            aucunes.
-        actions :
-            Fait passer le test, puis génère une note en fonction du nombre de bonnes réponses. Les questions ouvertes ne comptent pas dans la note.
-        retour :
+        arguments:
+            file: the name of the file in gift format that we want to pass the test.
+        options:
+            none.
+        actions:
+            Passes the test, then generates a score based on the number of correct answers. Open questions do not count in the score.
+        return :
             void
-        erreurs :
-            Si <nomFichier> n'est pas parsable, renvoie un message d'erreur.
-        exemple d'utilisation :
+        errors:
+            If <filename> is not parsable, returns an error message.
+        usage example:
             $ node caporalCli.js exam examentest.gift
-        notes :
-            Cette fonction répond à la SPEC3 du CDCF.
+        NOTES:
+            This function meets the SPEC3 of the CDCF.
 
 
 ## 0.1
-Parser de base. Les données ont du être réarrangé car l'ABNF correspondait en partie aux données.
+Basic Parser. The data had to be rearranged because the ABNF partially matched the data.
 
-Implémentation des questions de type QCM, vrai/faux, ouvertes, numérique et mot manquant.
+Implemented MCQ, true/false, open-ended, numeric and missing word questions.
 
-Implémentation des cartes d'informations sur les enseignants (VCard).
+Implemented teacher information cards (VCard).
 
-Possibilité de passer un examen.
+Possibility to take an exam.
 
-Possibilit2 de crée un examen selon un fichier .gift
+Possibility to create an exam according to a .gift file
 
-La possibilité de voir les stats des fichiers en barChart a été omise. Le fichier profile.html n'est mis que en statique. Une amélioration est à faire.
+The possibility to see the stats of the files in barChart has been omitted. The profile.html file is only static. An improvement is to be made.
 
 ## 0.2
 
-Corrections de bugs (créations d'examen au nom vide, ajout automatique de l'extension .gift)
+Bug fixes (creation of exams with empty names, automatic addition of the .gift extension)
 
-Possibilité de créer un histogramme Vegalite
+Possibility to create a Vegalite histogram
 
-Amélioration des commandes creerTest, CheckExam, les améliorations ne sont pas terminées
+Improvement of the commands creerTest, CheckExam, the improvements are not finished
 
-# Liste des contributeurs
+# List of contributors
 
 ### Matthieu TRAN
 
@@ -235,8 +235,8 @@ Amélioration des commandes creerTest, CheckExam, les améliorations ne sont pas
 
 ### Charles Miliotis
 
-*Nom de l'équipe de développement* : Group  
-*Membres* : Matthieu TRAN,Charles OSSOLA, Nathan Boutevilain, Tan Dung Pham  
-*Nom de l'équipe de refactoring*: Ort  
-*Membres* : Gwenaëlle RIOU, Antonin DOMIGUEZ,Charles MILIOTIS  
+*Name of the development team* : Groupegroupe  
+*Members* : Matthieu TRAN,Charles OSSOLA, Nathan Boutevilain, Tan Dung Pham  
+*Name of the refreactoring team*: Ort  
+*Members* : Gwenaëlle RIOU, Antonin DOMIGUEZ,Charles MILIOTIS  
 *Licence* : MIT
